@@ -3,6 +3,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const port = 3000;
+const twilioClient = require("twilio");
+
+const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+const TwilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+const TwilioAccountID = process.env.TWILIO_ACCOUNT_SID;
+
+const client = new twilioClient(TwilioAccountID, TwilioAuthToken);
 
 // This is a single page application and it's all rendered in public/index.html
 app.use(express.static("public"));
@@ -11,9 +18,9 @@ app.use(bodyParser.json());
 
 app.get("/api/compliments", async (req, res) => {
   // TODO: Get a list of messages sent from a specific number
-  const sentMessages = [];
+  const sentMessages = await client.messages.list({from: twilioPhone});
   // TODO: Gather only the body of those messages for sending to the client
-  const compliments = [];
+  const compliments = sentMessages.map(messages => messages.body);
   res.json(compliments);
 });
 
